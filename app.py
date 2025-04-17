@@ -287,7 +287,7 @@ with tab2:
         try:
             # Display the uploaded image
             image = Image.open(uploaded_file)
-            st.image(image, caption="Image téléchargée", use_column_width=True)
+            st.image(image, caption="Image téléchargée", use_container_width=True)
             
             with st.spinner("Analyse de l'image en cours..."):
                 # Convert the image for Gemini
