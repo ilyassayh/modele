@@ -244,3 +244,66 @@ with tab1:
         st.info("Remplissez les détails et cliquez sur 'Calculer le Coût de Réparation' pour obtenir une estimation")
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+with tab2:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>📸 Analyse Automatique par Photo</div>", unsafe_allow_html=True)
+    
+    uploaded_file = st.file_uploader("Téléchargez une photo du dommage", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_file is not None:
+        try:
+            # Display the uploaded image
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Image téléchargée", use_column_width=True)
+            
+            with st.spinner("Analyse de l'image en cours..."):
+                # Convert the image for Gemini
+                result = analyze_image_with_gemini(image)
+                
+                if result:
+                    st.success("Analyse complétée!")
+                    
+                    # Display results
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("### 🚗 Détails du Véhicule")
+                        st.write(f"**Marque:** {result['brand']}")
+                        st.write(f"**Modèle:** {result['model']}")
+                        st.write(f"**Année:** {result['year']}")
+                    
+                    with col2:
+                        st.markdown("### 🔍 Analyse des Dommages")
+                        st.write(f"**Partie endommagée:** {result['damaged_part']}")
+                        st.write(f"**Sévérité:** {result['severity']}")
+                        st.write(f"**Description:** {result['damage_description']}")
+                    
+                    # Calculate cost using the ML model
+                    try:
+                        input_data = pd.DataFrame([{
+                            'Brand': result['brand'],
+                            'Model': result['model'],
+                            'Year': result['year'],
+                            'Damaged_Part': result['damaged_part'],
+                            'Damage_Severity': int(result['severity'].split()[0]) if isinstance(result['severity'], str) else result['severity']
+                        }])
+                        
+                        input_encoded = preprocessor.transform(input_data)
+                        predicted_cost = best_model.predict(input_encoded)[0]
+                        
+                        st.markdown("### 💰 Estimation des Coûts")
+                        cost_category, emoji = get_cost_category(predicted_cost)
+                        cost_class = "cost-low" if predicted_cost < 1000 else "cost-medium" if predicted_cost < 3000 else "cost-high"
+                        st.markdown(f"<div class='highlight'><h2 class='{cost_class}'>{emoji} {format_currency(predicted_cost)}</h2></div>", unsafe_allow_html=True)
+                        
+                    except Exception as e:
+                        st.error(f"Erreur lors du calcul du coût: {e}")
+                        st.write("Utilisez l'onglet 'Saisie Manuelle' pour une estimation précise.")
+                else:
+                    st.error("Impossible d'analyser l'image. Veuillez réessayer avec une autre photo ou utiliser la saisie manuelle.")
+        except Exception as e:
+            st.error(f"Erreur lors du traitement de l'image: {e}")
+    else:
+        st.info("Téléchargez une photo claire du dommage pour obtenir une estimation automatique.")
+    
+    st.markdown("</div>", unsafe_allow_html=True)
