@@ -83,7 +83,7 @@ def analyze_image_with_gemini(image):
     - Car brand and model
     - Estimated year of manufacture
     - Damaged part
-    - Severity of the damage
+    - Severity of the damage (respond with a number: 1 for Minor, 2 for Moderate, 3 for Severe)
     - Brief description
     - Estimated repair cost in MAD
 
@@ -93,24 +93,56 @@ def analyze_image_with_gemini(image):
         "model": "...",
         "year": 2020,
         "damaged_part": "...",
-        "severity": "...",
+        "severity": 1,
         "damage_description": "...",
         "estimated_cost": 2500
     }
     """
-    response = model.generate_content([prompt, image])
-    match = re.search(r"\{.*\}", response.text, re.DOTALL)
-    if match:
-        try:
-            result = json.loads(match.group(0))
-            for fr, en in car_parts_map.items():
-                if result.get("damaged_part", "").lower() in en.lower():
-                    result["damaged_part"] = fr
-                    break
-            return result
-        except:
-            return None
-    return None
+    try:
+        # Convert PIL Image to bytes
+        import io
+        img_byte_arr = io.BytesIO()
+        image.save(img_byte_arr, format=image.format if image.format else 'JPEG')
+        img_byte_arr = img_byte_arr.getvalue()
+
+        # Create Gemini image part
+        image_part = {"mime_type": "image/jpeg", "data": img_byte_arr}
+        
+        # Generate content
+        response = model.generate_content([prompt, image_part])
+        
+        # Get the response text
+        response_text = response.text
+        
+        # Find JSON in response
+        match = re.search(r"\{.*\}", response_text, re.DOTALL)
+        if match:
+            try:
+                result = json.loads(match.group(0))
+                # Convert severity to integer if it's not already
+                if isinstance(result.get('severity'), str):
+                    # Extract first number from severity string
+                    severity_num = int(''.join(filter(str.isdigit, result['severity']))[:1])
+                    result['severity'] = min(max(severity_num, 1), 3)  # Ensure between 1 and 3
+                
+                # Map English part names to French
+                for fr, en in car_parts_map.items():
+                    if result.get("damaged_part", "").lower() in en.lower():
+                        result["damaged_part"] = fr
+                        break
+                
+                # Ensure the brand is in our list
+                if result.get('brand') not in brands:
+                    result['brand'] = brands[0]
+                
+                return result
+            except json.JSONDecodeError:
+                st.error("Erreur de format dans la réponse de l'IA")
+                return None
+        return None
+    except Exception as e:
+        st.error(f"Erreur lors de l'analyse de l'image: {str(e)}")
+        return None
 
 st.markdown("<div class='main-header'>🚗 Analyseur de Dommages Auto Pro</div>", unsafe_allow_html=True)
 
