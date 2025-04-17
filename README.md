@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Car Repair Cost Estimator
 
 A Streamlit web application that estimates car repair costs using machine learning and AI image analysis.
@@ -61,3 +62,7 @@ A Streamlit web application that estimates car repair costs using machine learni
 
 ## Note
 Make sure to keep your API keys secure and never commit them to version control. 
+=======
+# modele
+ "Car Repair Cost Estimator - A Streamlit web application using machine learning and AI image analysis"
+>>>>>>> origin/main
