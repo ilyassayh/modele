@@ -1,68 +1,52 @@
-<<<<<<< HEAD
 # Car Repair Cost Estimator
 
-A Streamlit web application that estimates car repair costs using machine learning and AI image analysis.
+This project provides multiple interfaces for estimating car repair costs using a pre‑trained machine learning model and AI image analysis.
 
-## Features
+## Contents
 
-- Manual cost estimation based on car details and damage severity
-- AI-powered image analysis using Google Gemini
-- Detailed cost breakdown (parts, labor, painting)
-- Repair timeline estimation
-- Multi-language support (French/English)
+- **Streamlit app** (`app.py`) – original UI for manual entry or photo analysis
+- **FastAPI backend** (`api.py`) exposing `/predict` and `/analyze` endpoints
+- **React frontend** (`frontend/`) built with Vite and Material‑UI
 
 ## Setup
 
-1. Clone the repository
-2. Create a virtual environment:
+1. Create a Python virtual environment and install dependencies:
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
+   source .venv/bin/activate
    pip install -r requirements.txt
    ```
-4. Create a `.env` file with your Google Gemini API key:
+2. Create a `.env` file with your Google Gemini API key:
    ```
-   GEMINI_API_KEY=your_api_key_here
+   GEMINI_API_KEY=your_api_key
    ```
-
-## Running the Application
-
-1. Activate your virtual environment
-2. Run the Streamlit app:
+3. (Optional) install Node dependencies for the React app *(requires internet access)*:
    ```bash
-   streamlit run app.py
+   cd frontend
+   npm install
+   npm run dev
    ```
 
-## Deployment Options
+## Running the Backend
 
-### Option 1: Streamlit Cloud (Recommended)
-1. Create a Streamlit Cloud account
-2. Connect your GitHub repository
-3. Set environment variables (GEMINI_API_KEY)
-4. Deploy
+Start the FastAPI server:
 
-### Option 2: Heroku
-1. Create a `Procfile`:
-   ```
-   web: streamlit run app.py --server.port $PORT
-   ```
-2. Deploy using Heroku CLI
+```bash
+uvicorn api:app --reload
+```
 
-### Option 3: Local Server
-1. Install required packages
-2. Run the application
-3. Use ngrok or similar to expose the local server
+### API Endpoints
 
-## Model Files
-- `gradient_boosting_model.pkl`: Trained machine learning model
-- `preprocessor.pkl`: Data preprocessing pipeline
+- `POST /predict` – send car details as JSON to get a cost estimate
+- `POST /analyze` – upload an image (`file` field) to analyze damage and return an estimate
 
-## Note
-Make sure to keep your API keys secure and never commit them to version control. 
-=======
-# modele
- "Car Repair Cost Estimator - A Streamlit web application using machine learning and AI image analysis"
->>>>>>> origin/main
+## Running the Streamlit App
+
+You can still launch the original Streamlit interface:
+
+```bash
+streamlit run app.py
+```
+
+Both interfaces rely on the same trained model files (`gradient_boosting_model.pkl` and `preprocessor.pkl`).
+
