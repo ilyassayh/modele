@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('AI Photo Analysis') }}{% endblock %}
+
+{% block head_extra %}
+<style>
+    .photo-analysis-container {
+        max-width: 1200px;
+        margin: auto;
+    }
+    /* Styles for the upload form card */
+    .upload-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        box-shadow: 0 8px 32px rgba(33, 128, 122, 0.1);
+        padding: 2rem 2.5rem;
+        margin-top: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .drag-drop-area {
+        border: 2.5px dashed #2ec4b6;
+        border-radius: 1.2rem;
+        background: linear-gradient(135deg, #e3f7fc 0%, #f8f9fa 100%);
+        padding: 2.5rem 1rem;
+        text-align: center;
+        color: #21807a;
+        font-size: 1.08rem;
+        margin-bottom: 1.2rem;
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.3s;
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+        animation: fadeInDown 0.7s;
+    }
+    .drag-drop-area.dragover {
+        border-color: #17635e;
+        background: #e3f7fc;
+        box-shadow: 0 0 0 4px #2ec4b633;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .preview-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-bottom: 1.2rem;
+        justify-content: center;
+        min-height: 80px;
+    }
+    .preview-img-wrapper {
+        position: relative;
+        display: inline-block;
+        animation: fadeIn 0.5s;
+    }
+    .preview-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 0.7rem;
+        box-shadow: 0 2px 8px rgba(33, 128, 122, 0.22);
+        border: 2px solid #2ec4b6;
+        transition: transform 0.2s;
+    }
+    .preview-img-wrapper:hover .preview-img {
+        transform: scale(1.08) rotate(-2deg);
+    }
+    .remove-img-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        z-index: 2;
+        opacity: 0.85;
+        transition: background 0.2s;
+    }
+    .remove-img-btn:hover {
+        background: #c82333;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .btn-submit-photos {
+        background: linear-gradient(135deg, #21807a 0%, #2ec4b6 100%);
+        border: none;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 0.75rem 1.5rem;
+        box-shadow: 0 4px 15px rgba(33, 128, 122, 0.2);
+        transition: all 0.3s ease;
+    }
+    .btn-submit-photos:hover {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 6px 20px rgba(33, 128, 122, 0.3);
+    }
+    /* Styles from the report (merged) */
+    .result-card {
+        border: none;
+        border-radius: 1.2rem;
+        transition: box-shadow 0.3s, transform 0.3s;
+        overflow: hidden;
+        margin-top: 2rem;
+        box-shadow: 0 8px 32px rgba(33, 128, 122, 0.15);
+        animation: fadeIn 0.7s;
+    }
+    .result-card:hover {
+        box-shadow: 0 12px 40px rgba(33, 128, 122, 0.25) !important;
+        transform: scale(1.01);
+    }
+    .card-img-top {
+        max-height: 450px;
+        object-fit: cover;
+        transition: filter 0.3s;
+    }
+    .card-img-top:hover {
+        filter: brightness(1.08) saturate(1.1);
+    }
+    .car-info-section {
+        background: linear-gradient(135deg, #e3f7fc, #f8f9fa);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .car-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .car-info-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.8rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(33, 128, 122, 0.1);
+    }
+    .car-info-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+    .car-info-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #21807a;
+    }
+    .confidence-badge {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .total-cost-badge {
+        background: linear-gradient(135deg, #21807a 0%, #2ec4b6 100%);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.8rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(33, 128, 122, 0.3);
+    }
+    .total-cost-badge strong {
+        font-size: 1.1rem;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+    .total-cost-badge span {
+        font-size: 2rem;
+        font-weight: 700;
+        display: block;
+        margin-top: 0.25rem;
+        letter-spacing: 1px;
+    }
+    .damage-item-card {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 0.8rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        min-height: 120px;
+        height: auto;
+        box-sizing: border-box;
+    }
+    .damage-item-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .damage-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    .damage-part-title {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+        font-weight: 700;
+        color: #17635e;
+        font-size: 1.2rem;
+        min-width: 0;
+    }
+    .damage-part-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+    .damage-part-title .bi {
+        color: #2ec4b6;
+    }
+    .repair-type-badge {
+        background: #6c757d;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        margin-left: 0;
+        margin-top: 0.2rem;
+        max-width: 220px;
+        white-space: normal;
+        word-break: break-word;
+        display: inline-block;
+    }
+    .damage-item-header .badge {
+        font-size: 0.8rem;
+        padding: 0.4em 0.8em;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-left: 0.5rem;
+        white-space: nowrap;
+    }
+    .damage-item-card .badge {
+        font-size: 0.8rem;
+        padding: 0.4em 0.8em;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .severity-mineur { background-color: #2ec4b6; color: white; }
+    .severity-modéré { background-color: #ffd166; color: #333; }
+    .severity-grave { background-color: #ff6b6b; color: white; }
+    .damage-description {
+        color: #495057;
+        margin-bottom: 1rem;
+        padding-left: 2.25rem;
+    }
+    .cost-breakdown {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .cost-item:last-child {
+        margin-bottom: 0;
+        border-top: 1px solid #dee2e6;
+        padding-top: 0.5rem;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    .repair-type-replace { background: #dc3545; }
+    .repair-type-repair { background: #28a745; }
+    .repair-type-refinish { background: #ffc107; color: #333; }
+    .analysis-meta {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    .progress-ring {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto;
+        display: block;
+        position: relative;
+    }
+    .progress-ring circle {
+        fill: none;
+        stroke-width: 7;
+        stroke-linecap: round;
+    }
+    .progress-ring .bg {
+        stroke: #e9ecef;
+    }
+    .progress-ring .progress {
+        stroke: #2ec4b6;
+        stroke-dasharray: 200;
+        stroke-dashoffset: 200;
+        transition: stroke-dashoffset 0.7s cubic-bezier(.77,0,.18,1);
+    }
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #21807a;
+        pointer-events: none;
+    }
+    .damage-item-card-inner, .damage-item-card-front {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        position: static;
+        width: 100%;
+    }
+    .damage-item-card-back { display: none !important; }
+    .severity-mineur-ind { background: #2ec4b6; }
+    .severity-modéré-ind { background: #ffd166; }
+    .severity-grave-ind { background: #ff6b6b; }
+    .infographic-bar {
+        height: 10px;
+        border-radius: 5px;
+        margin: 0.5rem 0 1rem 0;
+        background: linear-gradient(90deg, #2ec4b6 0%, #ffd166 50%, #ff6b6b 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .infographic-bar-inner {
+        height: 100%;
+        border-radius: 5px;
+        background: #2ec4b6;
+        transition: width 0.7s cubic-bezier(.77,0,.18,1);
+    }
+    .damage-item-card-front {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 120px;
+        justify-content: flex-start;
+    }
+    .damage-part-title {
+        margin-bottom: 0.3rem;
+    }
+    .damage-description {
+        color: #495057;
+        margin-bottom: 1rem;
+        margin-top: 0.2rem;
+        padding-left: 0;
+        word-break: break-word;
+    }
+    .cost-breakdown {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 photo-analysis-container">
+    <div class="text-center mb-4">
+        <h2 class="display-5" style="font-weight: 800; color: #21807a;">
+            {% if results %}{{ _('Enhanced AI Photo Analysis Report') }}{% else %}{{ _('Advanced AI Photo Analysis') }}{% endif %}
+        </h2>
+        <p class="lead" style="color: #17635e;">
+            {% if results %}{{ _('Comprehensive damage analysis with car identification and detailed cost breakdown.') }}{% else %}{{ _('Upload photos for instant AI-powered damage assessment with car identification.') }}{% endif %}
+        </p>
+    </div>
+
+    {% if not results %}
+    <div class="upload-card">
+        <form method="POST" enctype="multipart/form-data" id="photoForm">
+            <div class="drag-drop-area" id="dragDropArea">
+                <i class="bi bi-cloud-arrow-up" style="font-size: 3rem;"></i>
+                <p id="dragDropText" class="mt-2 mb-0">{{ _('Drag & drop images here or click to select') }}</p>
+                <input class="form-control" type="file" id="photo" name="photo" accept="image/*" multiple required style="display:none;">
+            </div>
+            <div class="preview-list" id="previewList"></div>
+            <button type="submit" class="btn btn-submit-photos w-100">{{ _('Analyze Photos with AI') }}</button>
+        </form>
+        <div id="loadingSpinner" class="text-center mt-3" style="display:none;">
+            <div class="spinner-border" role="status" style="color: #21807a;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2" style="color: #17635e;">{{ _('AI is analyzing your photos...') }}</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if results %}
+        {% for result in results %}
+        <div class="card shadow-lg result-card mb-5">
+            <img src="data:image/jpeg;base64,{{ result.img_data }}" class="card-img-top" alt="{{ result.filename }}">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <p class="text-muted mb-0">{{ _('Analysis for:') }} <strong>{{ result.filename }}</strong></p>
+                    {% if result.confidence_score %}
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="progress-ring" data-confidence="{{ result.confidence_score }}">
+                            <svg width="70" height="70">
+                                <circle class="bg" cx="35" cy="35" r="32"></circle>
+                                <circle class="progress" cx="35" cy="35" r="32"></circle>
+                            </svg>
+                            <span class="progress-text">{{ "%.1f"|format(result.confidence_score * 100) }}%</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if result.car_info %}
+                <div class="car-info-section">
+                    <h6 class="mb-3" style="font-weight: 700; color: #21807a;">
+                        <i class="bi bi-car-front"></i> Vehicle Information
+                    </h6>
+                    <div class="car-info-grid">
+                        <div class="car-info-item">
+                            <div class="car-info-label">{{ _('Brand') }}</div>
+                            <div class="car-info-value">{{ result.car_info.brand }}</div>
+                        </div>
+                        <div class="car-info-item">
+                            <div class="car-info-label">{{ _('Model') }}</div>
+                            <div class="car-info-value">{{ result.car_info.model }}</div>
+                        </div>
+                        <div class="car-info-item">
+                            <div class="car-info-label">{{ _('Year') }}</div>
+                            <div class="car-info-value">{{ result.car_info.year }}</div>
+                        </div>
+                        <div class="car-info-item">
+                            <div class="car-info-label">{{ _('Color') }}</div>
+                            <div class="car-info-value">{{ result.car_info.color }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="total-cost-badge">
+                    <strong>{{ _('Total Estimated Cost:') }}</strong>
+                    <span>{{ result.total_estimated_cost }}</span>
+                </div>
+                
+                {% if result.damage_data and result.damage_data.damages %}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="mb-3" style="font-weight: 700; color: #21807a;">
+                                <i class="bi bi-clipboard-data"></i> Overall Assessment
+                            </h6>
+                            <p class="text-muted">{{ result.damage_data.overall_assessment }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3" style="font-weight: 700; color: #21807a;">
+                                <i class="bi bi-tools"></i> Repair Complexity
+                            </h6>
+                            <span class="badge bg-{{ 'success' if result.damage_data.repair_complexity == 'simple' else 'warning' if result.damage_data.repair_complexity == 'moderate' else 'danger' }}">
+                                {{ result.damage_data.repair_complexity.title() }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4 mb-3" style="font-weight: 700; color: #21807a; font-size: 1.2rem;">
+                        <i class="bi bi-tools"></i> Detailed Damage Breakdown
+                    </h6>
+                    <div class="infographic-bar">
+                        <div class="infographic-bar-inner" id="infographicBar{{ loop.index }}"></div>
+                    </div>
+                    <div class="damage-breakdown-list">
+                        {% for detail in result.detailed_costs %}
+                            {% set severity_class = 'mineur' if detail.severity == 1 else 'modéré' if detail.severity == 2 else 'grave' %}
+                            <div class="damage-item-card" tabindex="0">
+                                <div class="damage-item-card-inner">
+                                    <div class="damage-item-header">
+                                        <div class="damage-part-title">
+                                            <div class="damage-part-title-row">
+                                                <span class="severity-indicator severity-{{ severity_class }}-ind"></span>
+                                                <i class="bi bi-tools"></i>
+                                                <span class="text-truncate" style="max-width: 160px; display: inline-block;">{{ detail.part }}</span>
+                                            </div>
+                                            <span class="repair-type-badge repair-type-{{ detail.repair_type }}">{{ detail.repair_type.title() }}</span>
+                                        </div>
+                                        <span class="badge severity-{{ severity_class }}">{{ severity_class.title() }}</span>
+                                    </div>
+                                    <p class="damage-description">{{ detail.description }}</p>
+                                    <div class="cost-breakdown">
+                                        <div class="cost-item">
+                                            <span>{{ _('Parts Cost:') }}</span>
+                                            <span>{{ "%.2f"|format(detail.parts_cost) }} MAD</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <span>{{ _('Labor') }} ({{ "%.1f"|format(detail.labor_hours) }}h):</span>
+                                            <span>{{ "%.2f"|format(detail.labor_cost) }} MAD</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <span>{{ _('Total for this part:') }}</span>
+                                            <span>{{ "%.2f"|format(detail.total_cost) }} MAD</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if result.damage_data.safety_concerns %}
+                    <div class="alert alert-warning mt-4">
+                        <h6><i class="bi bi-exclamation-triangle"></i> {{ _('Safety Concerns') }}</h6>
+                        <ul class="mb-0">
+                            {% for concern in result.damage_data.safety_concerns %}
+                            <li>{{ concern }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if result.damage_data.recommendations %}
+                    <div class="alert alert-info mt-3">
+                        <h6><i class="bi bi-lightbulb"></i> {{ _('Recommendations') }}</h6>
+                        <ul class="mb-0">
+                            {% for rec in result.damage_data.recommendations %}
+                            <li>{{ rec }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-success mt-3" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>{{ _('No damage was detected in this photo.') }}
+                    </div>
+                {% endif %}
+
+                <div class="analysis-meta">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>{{ _('Analysis Timestamp:') }}</strong> {{ result.analysis_timestamp }}
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <strong>{{ _('Analysis Method:') }}</strong> Enhanced AI with Computer Vision
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script>
+    const form = document.getElementById('photoForm');
+    const dragDropArea = document.getElementById('dragDropArea');
+    const fileInput = document.getElementById('photo');
+    const previewList = document.getElementById('previewList');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const dragDropText = document.getElementById('dragDropText');
+    let previewFiles = [];
+
+    if (dragDropArea) {
+        dragDropArea.addEventListener('click', () => fileInput.click());
+        dragDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.add('dragover');
+        });
+        dragDropArea.addEventListener('dragleave', () => {
+            dragDropArea.classList.remove('dragover');
+        });
+        dragDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+    }
+
+    function handleFiles(files) {
+        previewFiles = Array.from(files);
+        renderPreviews();
+    }
+
+    function renderPreviews() {
+        previewList.innerHTML = '';
+        if (previewFiles.length > 0) {
+            dragDropText.textContent = `${previewFiles.length} file(s) selected`;
+            previewFiles.forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'preview-img-wrapper';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-img';
+                    const btn = document.createElement('button');
+                    btn.className = 'remove-img-btn';
+                    btn.innerHTML = '<i class="bi bi-x"></i>';
+                    btn.onclick = (ev) => {
+                        ev.stopPropagation();
+                        previewFiles.splice(idx, 1);
+                        renderPreviews();
+                        fileInput.value = '';
+                    };
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(btn);
+                    previewList.appendChild(wrapper);
+                };
+                reader.readAsDataURL(file);
+            });
+        } else {
+            dragDropText.textContent = 'Drag & drop images here or click to select';
+        }
+    }
+
+    if (form) {
+        form.addEventListener('submit', function() {
+            loadingSpinner.style.display = 'block';
+            form.style.display = 'none';
+        });
+    }
+
+    // Animated progress ring for confidence
+    document.querySelectorAll('.progress-ring').forEach(function(ring) {
+        const confidence = parseFloat(ring.getAttribute('data-confidence')) || 0;
+        const circle = ring.querySelector('.progress');
+        const radius = 32;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference * (1 - confidence);
+        circle.style.strokeDasharray = `${circumference}`;
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 300);
+    });
+
+    // Infographic bar animation for damage breakdown
+    window.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.infographic-bar-inner').forEach(function(bar) {
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = '100%';
+            }, 500);
+        });
+    });
+</script>
+{% endblock %} 

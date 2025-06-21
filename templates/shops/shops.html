@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Find Repair Shops - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .shops-header {
+        text-align: center;
+        margin-bottom: 2.2rem;
+    }
+    .shops-map {
+        width: 100%;
+        height: 340px;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px #21807a18;
+        margin-bottom: 2.2rem;
+        border: 2px solid #2ec4b6;
+    }
+    .shops-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        justify-content: center;
+    }
+    .shop-card {
+        background: #fff;
+        border-radius: 1.1rem;
+        box-shadow: 0 6px 32px #21807a18;
+        border: 2px solid #2ec4b6;
+        padding: 1.3rem 1.5rem 1.1rem 1.5rem;
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        animation: fadeInCard 0.9s cubic-bezier(.39,.575,.56,1.000);
+    }
+    @keyframes fadeInCard {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .shop-card:hover, .shop-card.active {
+        box-shadow: 0 12px 40px #21807a33;
+        border-color: #21807a;
+        transform: translateY(-6px) scale(1.02);
+    }
+    .shop-title {
+        font-size: 1.22rem;
+        font-weight: 800;
+        color: #21807a;
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.5px;
+    }
+    .shop-info {
+        font-size: 1.07rem;
+        color: #17635e;
+        margin-bottom: 0.2rem;
+    }
+    .shop-icon {
+        color: #2ec4b6;
+        margin-right: 0.5rem;
+        font-size:1.1em;
+    }
+    .distance-badge {
+        display:inline-block;
+        background: linear-gradient(90deg,#2ec4b6,#21807a);
+        color:#fff;
+        font-size:0.98rem;
+        border-radius:0.7rem;
+        padding:0.3em 0.8em;
+        margin-bottom:0.8rem;
+        font-weight:600;
+        letter-spacing:0.5px;
+    }
+    .shop-card .card-body {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .shop-card .directions-btn {
+        margin-top: auto;
+        align-self: flex-start;
+        background: linear-gradient(90deg, #21807a 60%, #2ec4b6 100%);
+        color: #fff;
+        border: none;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        padding: 0.4em 1.3em;
+        box-shadow: 0 2px 8px #21807a22;
+        transition: background 0.18s, transform 0.15s;
+    }
+    .shop-card .directions-btn:hover {
+        background: linear-gradient(90deg, #17635e 60%, #21807a 100%);
+        color: #fff;
+        transform: translateY(-2px) scale(1.03);
+    }
+    .find-near-me-btn {
+        background: linear-gradient(90deg, #21807a 60%, #2ec4b6 100%) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 2rem !important;
+        font-weight: 600;
+        font-size: 1.08rem;
+        padding: 0.5em 1.7em;
+        box-shadow: 0 2px 8px #21807a22;
+        transition: background 0.18s, transform 0.15s;
+    }
+    .find-near-me-btn:hover, .find-near-me-btn:focus {
+        background: linear-gradient(90deg, #17635e 60%, #21807a 100%) !important;
+        color: #fff !important;
+        transform: translateY(-2px) scale(1.03);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="shops-header">
+        <h2 class="mb-2" style="font-weight:800; color:#21807a; letter-spacing:1px;">🔧 Find a Repair Shop</h2>
+        <p class="lead" style="color:#17635e; font-size:1.13rem;">Find trusted car repair shops near you, or in Casablanca if none are nearby.</p>
+    </div>
+    <div class="text-center mb-3">
+        <button id="findNearMeBtn" class="btn find-near-me-btn" style="font-weight:600;">
+            <i class="bi bi-geo-alt"></i> Find Repair Shops Near Me
+        </button>
+    </div>
+    <div id="loadingMessage" class="alert alert-info" style="display:none;">Trying to get your location...</div>
+    <div id="shopsMap" class="shops-map" style="display:none;"></div>
+    <div id="shopsGrid" class="shops-grid mt-4"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const casablancaShops = [
+        { name: 'Garage Auto Casablanca', address: 'Rue Ibnou Nafis, Casablanca 20250', lat: 33.5731, lon: -7.5898 },
+        { name: 'Carrosserie El Fida', address: 'Bd El Fida, Casablanca 20250', lat: 33.5898, lon: -7.6038 },
+        { name: 'Garage Benjelloun', address: 'Rue 10, Casablanca 20250', lat: 33.5734, lon: -7.6113 },
+        { name: 'Auto Service Maarif', address: 'Rue Ibnou Majat, Maarif, Casablanca', lat: 33.5822, lon: -7.6327 }
+    ];
+    
+    const shopsGrid = document.getElementById('shopsGrid');
+    const shopsMapEl = document.getElementById('shopsMap');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const findNearMeBtn = document.getElementById('findNearMeBtn');
+    let map;
+    let userMarker;
+
+    function displayShops(shops, userLat, userLng) {
+        shopsGrid.innerHTML = '';
+        if (!shops || shops.length === 0) {
+            shopsGrid.innerHTML = `<div class="alert alert-warning">No repair shops found. Showing default locations in Casablanca.</div>`;
+            shops = casablancaShops;
+        }
+
+        shops.forEach(shop => {
+            let dist = userLat ? getDistance(userLat, userLng, shop.lat, shop.lon) : null;
+            shop.distance = dist;
+        });
+
+        if (userLat) {
+            shops.sort((a, b) => a.distance - b.distance);
+        }
+
+        shops.forEach(shop => {
+            const shopCard = `
+                <div class="shop-card" data-lat="${shop.lat}" data-lon="${shop.lon}">
+                    <div class="card-body">
+                        <div class="shop-title">${shop.name}</div>
+                        ${shop.distance ? `<div class="distance-badge">${shop.distance.toFixed(1)} km away</div>` : ''}
+                        <div class="shop-info"><i class="bi bi-geo-alt-fill shop-icon"></i>${shop.address}</div>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}" target="_blank" class="directions-btn">Get Directions</a>
+                    </div>
+                </div>`;
+            shopsGrid.innerHTML += shopCard;
+
+            if(map) {
+                L.marker([shop.lat, shop.lon]).addTo(map).bindPopup(shop.name);
+            }
+        });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2-lat1) * (Math.PI/180);
+        const dLon = (lon2-lon1) * (Math.PI/180); 
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        return R * c; // Distance in km
+    }
+
+    function initMap(lat, lng) {
+        shopsMapEl.style.display = 'block';
+        if (!map) {
+            map = L.map('shopsMap').setView([lat, lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        } else {
+            map.setView([lat, lng], 13);
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+        }
+        userMarker = L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
+    }
+    
+    function showError(error) {
+        let message = "Error occurred while retrieving location. Showing default list.";
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                message = "Location access denied. Please enable location services in your browser settings to find nearby shops. Showing default list for Casablanca.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                message = "Location information is unavailable. Showing default list.";
+                break;
+            case error.TIMEOUT:
+                message = "The request to get user location timed out. Showing default list.";
+                break;
+        }
+        loadingMessage.className = 'alert alert-warning';
+        loadingMessage.innerText = message;
+        loadingMessage.style.display = 'block';
+        initMap(33.5731, -7.5898); // Casablanca center
+        displayShops(casablancaShops);
+    }
+
+    // Show Casablanca by default
+    loadingMessage.style.display = 'none';
+    initMap(33.5731, -7.5898);
+    displayShops(casablancaShops);
+
+    findNearMeBtn.addEventListener('click', function() {
+        loadingMessage.innerText = 'Trying to get your location...';
+        loadingMessage.className = 'alert alert-info';
+        loadingMessage.style.display = 'block';
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                loadingMessage.style.display = 'none';
+
+                initMap(lat, lon);
+                
+                // Calculate a bounding box for the search
+                const radius_km = 20; // 20km radius
+                const lat_change = radius_km / 111.32;
+                const lon_change = radius_km / (111.32 * Math.cos(lat * Math.PI / 180));
+                const viewbox = `${lon - lon_change},${lat + lat_change},${lon + lon_change},${lat - lat_change}`;
+
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=car+repair&viewbox=${viewbox}&bounded=1&limit=10`;
+                try {
+                    const response = await fetch(url);
+                    let shops = await response.json();
+                    shops = shops.map(s => ({
+                        name: s.display_name.split(',')[0],
+                        address: s.display_name,
+                        lat: s.lat,
+                        lon: s.lon
+                    }));
+                    displayShops(shops, lat, lon);
+                } catch (e) {
+                    loadingMessage.className = 'alert alert-danger';
+                    loadingMessage.innerText = 'Could not fetch shops. Showing default list.';
+                    displayShops(casablancaShops, lat, lon);
+                }
+            }, showError);
+        } else {
+            loadingMessage.className = 'alert alert-danger';
+            loadingMessage.innerText = "Geolocation is not supported by this browser. Showing default list.";
+            loadingMessage.style.display = 'block';
+            initMap(33.5731, -7.5898); // Casablanca center
+            displayShops(casablancaShops);
+        }
+    });
+});
+</script>
+{% endblock %}

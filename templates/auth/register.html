@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+        min-height: 100vh;
+    }
+    .register-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    .register-card {
+        max-width: 420px;
+        width: 100%;
+        border-radius: 1.5rem;
+        box-shadow: 0 12px 40px rgba(33,128,122,0.15);
+        border: none;
+        background: #fff;
+        animation: slideInUp 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+    .register-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #21807a, #2ec4b6, #21807a);
+    }
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .register-logo {
+        text-align: center;
+        margin-bottom: 1rem;
+        animation: logoBounce 0.8s ease-out 0.2s both;
+    }
+    .register-logo img {
+        max-width: 100px;
+        max-height: 100px;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(33,128,122,0.2);
+        transition: transform 0.3s ease;
+    }
+    .register-logo img:hover {
+        transform: scale(1.05);
+    }
+    @keyframes logoBounce {
+        0% { opacity: 0; transform: scale(0.8); }
+        50% { transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    .register-tagline {
+        text-align: center;
+        color: #21807a;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.3px;
+        animation: fadeIn 0.8s ease-out 0.4s both;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+        animation: slideInLeft 0.6s ease-out 0.6s both;
+    }
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    .form-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #21807a;
+        font-size: 1.1rem;
+        z-index: 2;
+    }
+    .form-control {
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    .form-control:focus {
+        border-color: #21807a;
+        box-shadow: 0 0 0 0.2rem rgba(33,128,122,0.15);
+        background: #fff;
+    }
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.15);
+    }
+    .form-control.is-valid {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.15);
+    }
+    .toggle-password {
+        cursor: pointer;
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 1.1rem;
+        z-index: 2;
+        transition: color 0.3s ease;
+    }
+    .toggle-password:hover {
+        color: #21807a;
+    }
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        animation: slideInRight 0.6s ease-out 0.8s both;
+    }
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    .form-actions a {
+        color: #21807a;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .form-actions a:hover {
+        color: #17635e;
+        text-decoration: underline;
+    }
+    .btn-success {
+        background: linear-gradient(135deg, #21807a 0%, #2ec4b6 100%);
+        border: none;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 0.875rem 2rem;
+        box-shadow: 0 4px 16px rgba(33,128,122,0.3);
+        transition: all 0.3s ease;
+        animation: slideInUp 0.6s ease-out 1s both;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-success::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    .btn-success:hover::before {
+        left: 100%;
+    }
+    .btn-success:hover, .btn-success:focus {
+        background: linear-gradient(135deg, #17635e 0%, #21807a 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(33,128,122,0.4);
+    }
+    .btn-success:active {
+        transform: translateY(0);
+    }
+    .strength-meter { 
+        height: 6px;
+        background: #e9ecef !important; 
+        border-radius: 3px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    #strengthBar {
+        height: 6px;
+        transition: all 0.3s ease;
+        border-radius: 3px;
+    }
+    .bg-success { background: #21807a !important; }
+    .bg-danger { background: #dc3545 !important; }
+    .bg-warning { background: #ffc107 !important; }
+    .bg-info { background: #0dcaf0 !important; }
+    .alert {
+        border-radius: 0.8rem;
+        border: none;
+        font-weight: 500;
+        animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    .loading {
+        display: none;
+    }
+    .btn-success.loading {
+        position: relative;
+        color: transparent;
+    }
+    .btn-success.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .password-requirements {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.75rem;
+        padding-left: 0.25rem;
+    }
+    .requirement {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.35rem;
+        transition: color 0.3s ease;
+    }
+    .requirement i {
+        margin-right: 0.5rem;
+        font-size: 0.8rem;
+        transition: color 0.3s ease;
+    }
+    .requirement.met {
+        color: #198754;
+        font-weight: 500;
+    }
+    .requirement.unmet {
+        color: #dc3545;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="card register-card">
+        <div class="card-body p-4">
+            <div class="register-logo">
+                <img src="/static/sygma_logo.png" alt="Sygma.AI Logo">
+            </div>
+            <div class="register-tagline">Create your account and join the future of smart auto solutions.</div>
+            <h4 class="mb-4 text-center" style="font-weight:600; letter-spacing:0.5px; color: #21807a;">Register for Sygma.AI</h4>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" autocomplete="off" id="registerForm" novalidate>
+                <div class="form-group">
+                    <i class="bi bi-envelope form-icon"></i>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email address" required>
+                </div>
+                <div class="form-group">
+                    <i class="bi bi-lock form-icon"></i>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                    <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
+                </div>
+                <div class="form-group">
+                    <i class="bi bi-lock form-icon"></i>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                </div>
+                <div class="form-actions">
+                    <a href="{{ url_for('auth.login') }}">Already have an account? Login</a>
+                </div>
+                <button type="submit" class="btn btn-success w-100" id="registerBtn">
+                    <span class="btn-text">Create Account</span>
+                    <span class="loading">Creating account...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const togglePassword = document.getElementById('togglePassword');
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const emailInput = document.getElementById('email');
+
+    // Password toggle
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    }
+
+    // Form submission validation
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            let isEmailValid = true;
+            
+            // Email validation
+            if (!emailInput.value || !emailInput.value.includes('@')) {
+                emailInput.classList.add('is-invalid');
+                emailInput.classList.remove('is-valid');
+                isEmailValid = false;
+            } else {
+                emailInput.classList.remove('is-invalid');
+                emailInput.classList.add('is-valid');
+            }
+            
+            // Password validation
+            let isPasswordValid = true;
+            if (passwordInput.value.length === 0) {
+                passwordInput.classList.add('is-invalid');
+                isPasswordValid = false;
+            } else {
+                passwordInput.classList.remove('is-invalid');
+            }
+            
+            // Confirm password validation
+            let isConfirmPasswordValid = true;
+            if (!confirmPasswordInput.value || confirmPasswordInput.value !== passwordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                confirmPasswordInput.classList.remove('is-valid');
+                isConfirmPasswordValid = false;
+            } else {
+                confirmPasswordInput.classList.remove('is-invalid');
+                if(passwordInput.value.length > 0) {
+                    confirmPasswordInput.classList.add('is-valid');
+                }
+            }
+            
+            if (isEmailValid && isPasswordValid && isConfirmPasswordValid) {
+                registerBtn.classList.add('loading');
+                registerBtn.disabled = true;
+                // Don't prevent default, allow form submission
+                return true;
+            } else {
+                e.preventDefault(); // Prevent submission if validation fails
+            }
+        });
+    }
+
+    // Real-time validation for other fields
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            if (this.value && this.value.includes('@')) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else if (this.value.length > 0) {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            } else {
+                 this.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+    }
+
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value && passwordInput.value && this.value === passwordInput.value) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else if (this.value.length > 0) {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+    }
+</script>
+{% endblock %} 

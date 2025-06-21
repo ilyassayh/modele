@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Live Chat Support - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    .chat-container {
+        max-width: 520px;
+        margin: 1.5rem auto 2rem auto;
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(33,128,122,0.18);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(12px);
+        padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+        animation: fadeIn 1.1s cubic-bezier(.39,.575,.56,1.000);
+    }
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .chat-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .chat-history {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7em;
+        min-height: 260px;
+        max-height: 340px;
+        overflow-y: auto;
+        margin-bottom: 1.2em;
+        background: rgba(227,247,252,0.55);
+        border-radius: 1.3rem;
+        padding: 1.1rem 1rem 1rem 1rem;
+        box-shadow: 0 2px 12px #21807a11;
+    }
+    .chat-bubble {
+        border-radius: 1.3em;
+        padding: 0.9em 1.4em;
+        max-width: 85%;
+        font-size: 1.05rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 12px #21807a18;
+        animation: fadeInChat 0.5s;
+        margin-bottom: 0.2em;
+    }
+    .chat-bubble.user {
+        background: linear-gradient(90deg, #2ec4b6 60%, #21807a 100%);
+        color: #fff;
+        align-self: flex-end;
+        margin-left: auto;
+        border-bottom-right-radius: 0.3em;
+    }
+    .chat-bubble.support {
+        background: #fff;
+        color: #21807a;
+        align-self: flex-start;
+        margin-right: auto;
+        border-bottom-left-radius: 0.3em;
+        border: 1.5px solid #2ec4b6;
+    }
+    .chat-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        margin-right: 0.7em;
+        background: #fff;
+        box-shadow: 0 2px 8px #21807a22;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+    .chat-bubble.user .chat-avatar {
+        order: 2;
+        margin-left: 0.7em;
+        margin-right: 0;
+    }
+    @keyframes fadeInChat {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .chat-input-bar {
+        display: flex;
+        gap: 0.7em;
+        margin-top: 1.2em;
+    }
+    .chat-input-bar .form-control {
+        border-radius: 1.2em;
+        font-size: 1.08rem;
+    }
+    .chat-input-bar .btn-primary {
+        background: linear-gradient(90deg, #21807a 60%, #2ec4b6 100%);
+        border: none;
+        border-radius: 2em;
+        font-weight: 600;
+        font-size: 1.13rem;
+        box-shadow: 0 2px 8px #21807a22;
+        transition: background 0.2s, transform 0.15s;
+    }
+    .chat-input-bar .btn-primary:hover, .chat-input-bar .btn-primary:focus {
+        background: linear-gradient(90deg, #17635e 60%, #21807a 100%);
+        transform: translateY(-2px) scale(1.03);
+    }
+    .chat-title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    .chat-title-spacer {
+        flex-basis: 110px;
+        flex-shrink: 0;
+    }
+    .chat-title-text {
+        font-weight:800; 
+        color:#21807a; 
+        letter-spacing:1px;
+        margin-bottom: 0;
+    }
+    .new-chat-btn {
+        background: linear-gradient(45deg, #2ec4b6, #28a096); 
+        color: white; 
+        border-radius: 2rem; 
+        font-weight: 500; 
+        padding: 0.4rem 1rem;
+        border: none;
+        box-shadow: 0 2px 8px #21807a22;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-shrink: 0;
+    }
+    .new-chat-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px #21807a33;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <img src="/static/sygma_logo.png" alt="Sygma.AI Logo" style="max-width:120px; max-height:120px; margin-bottom:0.5rem; background:none; box-shadow:none; border-radius:0;">
+        <div class="chat-title-container">
+            <div class="chat-title-spacer"></div>
+            <h2 class="chat-title-text">Live Chat Support</h2>
+            <div class="chat-title-spacer" style="text-align: right;">
+                <a href="{{ url_for('chat.new_chat') }}" class="new-chat-btn" title="Start a New Chat">
+                    <i class="bi bi-arrow-clockwise"></i> New Chat
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="chat-history mb-3" id="chatHistory">
+        {% for msg in chat_history %}
+        <div class="chat-bubble {{ msg.sender }}">
+            {% if msg.sender == 'user' %}
+                <div class="chat-avatar" style="background-color: #21807a; color: white;"><i class="bi bi-person"></i></div>
+            {% else %}
+                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+            {% endif %}
+            <span>{{ msg.message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    <form method="POST" class="chat-input-bar">
+        <input type="text" class="form-control" name="message" placeholder="Type your message..." autocomplete="off" autofocus required>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
+    </form>
+</div>
+<script>
+    const chatHistory = document.getElementById('chatHistory');
+    if (chatHistory) {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+</script>
+{% endblock %} 

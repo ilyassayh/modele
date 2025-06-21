@@ -1,0 +1,38 @@
+body {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.card {
+    border-radius: 1.2rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    background: rgba(255,255,255,0.95);
+}
+.card-header {
+    border-radius: 1.2rem 1.2rem 0 0;
+    font-weight: bold;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+}
+.btn-primary, .btn-success, .btn-info {
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s;
+}
+.btn-primary:hover, .btn-success:hover, .btn-info:hover {
+    filter: brightness(1.1);
+}
+.navbar {
+    border-radius: 0 0 1.2rem 1.2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+input, select, textarea {
+    border-radius: 0.7rem !important;
+}
+#result, #photo-result, #chatbot-response {
+    min-height: 2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+} 

@@ -1,0 +1,177 @@
+# Translations template for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-06-21 01:02+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: blueprints/auth/routes.py:17
+msgid "Logged in successfully!"
+msgstr ""
+
+#: blueprints/auth/routes.py:20
+msgid "Invalid email or password."
+msgstr ""
+
+#: blueprints/auth/routes.py:30
+msgid "Passwords do not match."
+msgstr ""
+
+#: blueprints/auth/routes.py:33
+msgid "Email already registered."
+msgstr ""
+
+#: blueprints/auth/routes.py:39
+msgid "Registration successful! Please log in."
+msgstr ""
+
+#: blueprints/auth/routes.py:47
+msgid "You have been logged out."
+msgstr ""
+
+#: templates/base.html:6
+msgid "Sygma.AI Car Repair Estimator"
+msgstr ""
+
+#: templates/base.html:87 templates/home.html:16 templates/home.html:72
+msgid "Manual Estimate"
+msgstr ""
+
+#: templates/base.html:88 templates/home.html:17 templates/home.html:78
+msgid "Photo Analysis"
+msgstr ""
+
+#: templates/base.html:89 templates/home.html:18
+msgid "Repair Shops"
+msgstr ""
+
+#: templates/base.html:90 templates/home.html:19
+msgid "Live Chat"
+msgstr ""
+
+#: templates/base.html:94 templates/home.html:23
+msgid "Admin"
+msgstr ""
+
+#: templates/base.html:96 templates/home.html:25
+msgid "Dashboard"
+msgstr ""
+
+#: templates/base.html:97 templates/home.html:26
+msgid "Logout"
+msgstr ""
+
+#: templates/base.html:99 templates/home.html:28
+msgid "Login/Register"
+msgstr ""
+
+#: templates/base.html:105
+msgid "Language"
+msgstr ""
+
+#: templates/home.html:3
+msgid "Car Repair Cost Estimator - Home"
+msgstr ""
+
+#: templates/home.html:40
+msgid "Welcome to Sygma.AI Car Repair Estimator"
+msgstr ""
+
+#: templates/home.html:41
+msgid ""
+"Estimate car repair costs, analyze damage photos, compare options, find "
+"repair shops, and more!"
+msgstr ""
+
+#: templates/home.html:45 templates/home.html:60
+msgid "Get Started"
+msgstr ""
+
+#: templates/home.html:49
+msgid "Start New Estimate"
+msgstr ""
+
+#: templates/home.html:58
+msgid "User Login & Register"
+msgstr ""
+
+#: templates/home.html:59
+msgid "Access your account, view your estimate history, and manage your profile."
+msgstr ""
+
+#: templates/home.html:65
+msgid "My Dashboard"
+msgstr ""
+
+#: templates/home.html:66
+msgid "View your estimate history, and manage your profile."
+msgstr ""
+
+#: templates/home.html:67
+msgid "View Dashboard"
+msgstr ""
+
+#: templates/home.html:73
+msgid "Get a repair cost estimate by entering your car and damage details."
+msgstr ""
+
+#: templates/home.html:74
+msgid "Start Estimate"
+msgstr ""
+
+#: templates/home.html:79
+msgid "Upload photos of your car's damage for instant AI-powered analysis."
+msgstr ""
+
+#: templates/home.html:80
+msgid "Analyze Photos"
+msgstr ""
+
+#: templates/home.html:84
+msgid "Repair Shop Finder"
+msgstr ""
+
+#: templates/home.html:85
+msgid "Find trusted repair shops near you and get directions."
+msgstr ""
+
+#: templates/home.html:86
+msgid "Find Shops"
+msgstr ""
+
+#: templates/home.html:90
+msgid "Live Chat Support"
+msgstr ""
+
+#: templates/home.html:91
+msgid "Get instant help and answers from our support team."
+msgstr ""
+
+#: templates/home.html:92
+msgid "Start Chat"
+msgstr ""
+
+#: templates/home.html:97
+msgid "Admin Dashboard"
+msgstr ""
+
+#: templates/home.html:98
+msgid "Manage users, estimates, and platform settings."
+msgstr ""
+
+#: templates/home.html:99
+msgid "Admin Panel"
+msgstr ""
+

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sygma IA - Chatbot IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f7fc 0%, #f8f9fa 100%);
+        }
+        .chatbot-container {
+            max-width: 540px;
+            margin: 2.5rem auto;
+        }
+        .chat-card-pro {
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(13,202,240,0.13);
+            background: #fff;
+            overflow: hidden;
+        }
+        .chat-header-pro {
+            background: linear-gradient(90deg, #0dcaf0 0%, #198754 100%);
+            color: #fff;
+            padding: 1.2rem 2rem 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .chat-header-pro .bi {
+            font-size: 2.2rem;
+        }
+        .chat-header-pro .subtitle {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #e3f7fc;
+        }
+        .chat-history {
+            max-height: 340px;
+            overflow-y: auto;
+            padding: 2rem 2rem 1rem 2rem;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .chat-bubble-pro {
+            border-radius: 1.2rem;
+            padding: 1rem 1.3rem;
+            max-width: 85%;
+            font-size: 1.08rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .chat-bubble-pro.user {
+            background: #e3f7fc;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .chat-bubble-pro.bot {
+            background: #eafaf1;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        .chat-input-bar {
+            background: #f8f9fa;
+            padding: 1rem 2rem;
+            border-top: 1px solid #e3f7fc;
+            display: flex;
+            gap: 0.7em;
+            align-items: center;
+        }
+        .chat-input-bar input {
+            flex: 1;
+            border-radius: 2rem;
+            padding-left: 1.2em;
+            font-size: 1.1rem;
+            border: 1px solid #cce5ff;
+        }
+        .chat-input-bar button {
+            border-radius: 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .example-chips {
+            display: flex;
+            gap: 0.5em;
+            flex-wrap: wrap;
+            margin: 1rem 2rem 0.5rem 2rem;
+        }
+        .example-chips span {
+            background: #e3f7fc;
+            border-radius: 1em;
+            padding: 0.3em 1em;
+            font-size: 0.98rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .example-chips span:hover {
+            background: #b6eaff;
+        }
+        .navbar-sygma {
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(33,128,122,0.10);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 260px;
+            padding-top: 0;
+            padding-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            height: 250px;
+            width: auto;
+            margin-right: 32px;
+            vertical-align: middle;
+            margin-top: 0;
+            padding: 0 8px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand span {
+            display: none;
+        }
+        .nav-link {
+            color: #21807a !important;
+            font-weight: 500;
+            font-size: 1.08rem;
+        }
+        .nav-link.active, .nav-link:focus, .nav-link:hover {
+            color: #fff !important;
+            background: #21807a !important;
+            border-radius: 1em;
+        }
+        .card-header.bg-info {
+            background: #21807a !important;
+            color: #fff !important;
+        }
+        .btn-send {
+            background: #21807a !important;
+            border: none !important;
+        }
+        .btn-send:hover {
+            background: #17635e !important;
+        }
+        .suggestion-btn {
+            border-radius: 2em;
+            background: #e3f7fc;
+            color: #21807a;
+            border: none;
+            margin: 0.2em 0.3em;
+            padding: 0.3em 1.1em;
+            font-size: 0.98rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .suggestion-btn:hover {
+            background: #21807a;
+            color: #fff;
+        }
+        .chat-history {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .chatbot-card {
+                max-width: 98vw !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-sygma mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center justify-content-center" href="/">
+      <img src="/static/sygma_logo.png" alt="Sygma IA Logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/">Saisie Manuelle</a></li>
+        <li class="nav-item"><a class="nav-link" href="/photo">Analyse Photo</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/chatbot">Chatbot IA</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container my-5">
+  <div class="card shadow mx-auto chatbot-card" style="max-width: 540px;">
+    <div class="card-header bg-info text-white">
+      <i class="bi bi-robot"></i> Chatbot IA Automobile
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <button type="button" class="suggestion-btn">Comment réparer un pare-choc ?</button>
+        <button type="button" class="suggestion-btn">Quel est le coût moyen d'une aile ?</button>
+        <button type="button" class="suggestion-btn">Combien de temps pour changer un phare ?</button>
+      </div>
+      <div class="chat-history">
+        {% if error %}
+          <div class="alert alert-danger w-100">{{ error }}</div>
+        {% endif %}
+        {% if user_question %}
+          <div class="chat-bubble-pro user"><i class="bi bi-person-circle"></i> {{ user_question }}</div>
+        {% endif %}
+        {% if chatbot_response %}
+          <div class="chat-bubble-pro bot"><i class="bi bi-robot"></i> {{ chatbot_response }}</div>
+        {% endif %}
+      </div>
+      <form class="input-group mt-3" method="POST" action="/chatbot">
+        <input type="text" class="form-control" id="question" name="question" placeholder="Posez votre question ici..." required autocomplete="off">
+        <button class="btn btn-send" type="submit"><i class="bi bi-send"></i></button>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+// Suggestion chip click autofills input
+const suggestions = document.querySelectorAll('.suggestion-btn');
+const input = document.getElementById('question');
+suggestions.forEach(btn => btn.addEventListener('click', () => {
+  input.value = btn.textContent;
+  input.focus();
+}));
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

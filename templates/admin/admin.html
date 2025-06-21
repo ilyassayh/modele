@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 1.5rem auto 2rem auto;
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(33,128,122,0.18);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(12px);
+        padding: 2.5rem 2.2rem 2rem 2.2rem;
+        animation: fadeIn 1.1s cubic-bezier(.39,.575,.56,1.000);
+    }
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .admin-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2.2rem;
+    }
+    .admin-logo {
+        max-width: 90px;
+        max-height: 90px;
+        margin-bottom: 0.7rem;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    .admin-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #21807a;
+        letter-spacing: 1px;
+        margin-bottom: 0.2rem;
+    }
+    .admin-subtitle {
+        color: #17635e;
+        font-size: 1.13rem;
+        margin-bottom: 0.5rem;
+    }
+    .nav-tabs {
+        border-bottom: 2px solid #e3f7fc;
+        margin-bottom: 2rem;
+    }
+    .nav-tabs .nav-link {
+        border: none;
+        color: #21807a;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        border-radius: 1rem 1rem 0 0;
+        transition: all 0.3s ease;
+    }
+    .nav-tabs .nav-link.active {
+        background: #e3f7fc;
+        color: #17635e;
+        border-bottom: 3px solid #2ec4b6;
+    }
+    .nav-tabs .nav-link:hover {
+        background: rgba(227, 247, 252, 0.5);
+        color: #17635e;
+    }
+    .stat-card {
+        background: rgba(255,255,255,0.95);
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px #21807a18;
+        border: 2px solid #2ec4b6;
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        text-align: center;
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+        animation: fadeInCard 0.9s cubic-bezier(.39,.575,.56,1.000);
+        height: 100%;
+    }
+    .stat-card:hover {
+        box-shadow: 0 8px 32px #21807a33;
+        border-color: #21807a;
+        transform: translateY(-4px) scale(1.03);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        color: #2ec4b6;
+        margin-bottom: 0.5rem;
+    }
+    .stat-title {
+        font-size: 1.13rem;
+        font-weight: 700;
+        color: #21807a;
+        margin-bottom: 0.2rem;
+    }
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #17635e;
+    }
+    .stat-subtitle {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
+    }
+    .activity-card {
+        background: rgba(255,255,255,0.95);
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px #21807a18;
+        border: 2px solid #e3f7fc;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .activity-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #21807a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    .activity-title i {
+        margin-right: 0.5rem;
+        color: #2ec4b6;
+    }
+    .activity-item {
+        padding: 0.8rem;
+        border-bottom: 1px solid #e3f7fc;
+        transition: background 0.2s ease;
+    }
+    .activity-item:hover {
+        background: rgba(227, 247, 252, 0.3);
+    }
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    .activity-time {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.2rem;
+    }
+    .btn-admin {
+        background: linear-gradient(135deg, #2ec4b6, #21807a);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    .btn-admin:hover {
+        background: linear-gradient(135deg, #21807a, #17635e);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 128, 122, 0.3);
+    }
+    .btn-danger-admin {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    .btn-danger-admin:hover {
+        background: linear-gradient(135deg, #ee5a52, #d63031);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(238, 90, 82, 0.3);
+    }
+    .table-admin {
+        background: rgba(255,255,255,0.97);
+        border-radius: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 24px #21807a18;
+    }
+    .table-admin thead {
+        background: #e3f7fc;
+        color: #21807a;
+    }
+    .table-admin th {
+        border: none;
+        font-weight: 700;
+        padding: 1rem;
+    }
+    .table-admin td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    .table-admin tbody tr:hover {
+        background: rgba(227, 247, 252, 0.3);
+    }
+    @keyframes fadeInCard {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .chart-container {
+        background: rgba(255,255,255,0.95);
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px #21807a18;
+        border: 2px solid #e3f7fc;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <img src="/static/sygma_logo.png" alt="Sygma.AI Logo" class="admin-logo">
+        <div class="admin-title">Admin Dashboard</div>
+        <div class="admin-subtitle">Manage your platform, users, and data with Sygma.AI</div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                <i class="bi bi-speedometer2"></i> Overview
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                <i class="bi bi-people"></i> Users
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="estimates-tab" data-bs-toggle="tab" data-bs-target="#estimates" type="button" role="tab">
+                <i class="bi bi-calculator"></i> Estimates
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab">
+                <i class="bi bi-graph-up"></i> Analytics
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">
+                <i class="bi bi-gear"></i> Settings
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="adminTabContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-people"></i></div>
+                        <div class="stat-title">Total Users</div>
+                        <div class="stat-value">{{ stats.total_users }}</div>
+                        <div class="stat-subtitle">Registered users</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-calculator"></i></div>
+                        <div class="stat-title">Total Estimates</div>
+                        <div class="stat-value">{{ stats.total_estimates }}</div>
+                        <div class="stat-subtitle">All estimates</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-camera"></i></div>
+                        <div class="stat-title">Photo Estimates</div>
+                        <div class="stat-value">{{ stats.total_photos }}</div>
+                        <div class="stat-subtitle">AI-powered</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-pencil"></i></div>
+                        <div class="stat-title">Manual Estimates</div>
+                        <div class="stat-value">{{ stats.total_manual }}</div>
+                        <div class="stat-subtitle">User input</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="activity-card">
+                        <div class="activity-title">
+                            <i class="bi bi-clock-history"></i>
+                            Recent Users
+                        </div>
+                        {% for user in recent_users %}
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ user.email }}</strong>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-primary ms-2">Admin</span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">ID: {{ user.id }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="activity-card">
+                        <div class="activity-title">
+                            <i class="bi bi-activity"></i>
+                            Recent Estimates
+                        </div>
+                        {% for estimate in recent_estimates %}
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ estimate.estimate_type.title() }} Estimate</strong>
+                                    <br>
+                                    <small class="text-muted">User ID: {{ estimate.user_id }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">{{ estimate.timestamp.strftime('%m/%d %H:%M') }}</small>
+                                    <br>
+                                    <span class="badge bg-{{ 'success' if estimate.estimate_type == 'photo' else 'info' }}">
+                                        {{ estimate.estimate_type }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div class="tab-pane fade" id="users" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 style="font-weight:700; color:#21807a;">User Management</h4>
+                <a href="{{ url_for('admin.admin_users') }}" class="btn btn-admin">
+                    <i class="bi bi-people"></i> Manage Users
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-admin">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Estimates</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.is_admin %}
+                                <span class="badge bg-primary">Admin</span>
+                                {% else %}
+                                <span class="badge bg-secondary">User</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.estimates|length }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <form method="POST" action="{{ url_for('admin.toggle_admin_status', user_id=user.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-admin" 
+                                                {% if user.id == current_user.id %}disabled{% endif %}
+                                                title="{% if user.is_admin %}Remove admin{% else %}Make admin{% endif %}">
+                                            <i class="bi bi-{{ 'shield-x' if user.is_admin else 'shield-check' }}"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger-admin" 
+                                                {% if user.id == current_user.id %}disabled{% endif %}
+                                                onclick="return confirm('Are you sure you want to delete this user?')"
+                                                title="Delete user">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Estimates Tab -->
+        <div class="tab-pane fade" id="estimates" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 style="font-weight:700; color:#21807a;">Estimate Management</h4>
+                <a href="{{ url_for('admin.admin_estimates') }}" class="btn btn-admin">
+                    <i class="bi bi-calculator"></i> View All Estimates
+                </a>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-camera"></i></div>
+                        <div class="stat-title">Photo Estimates</div>
+                        <div class="stat-value">{{ estimate_stats.photo_estimates }}</div>
+                        <div class="stat-subtitle">AI-powered analysis</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-pencil"></i></div>
+                        <div class="stat-title">Manual Estimates</div>
+                        <div class="stat-value">{{ estimate_stats.manual_estimates }}</div>
+                        <div class="stat-subtitle">User input</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-pane fade" id="analytics" role="tabpanel">
+            <div class="chart-container">
+                <h4 style="font-weight:700; color:#21807a; margin-bottom:1.5rem;">
+                    <i class="bi bi-graph-up"></i> Platform Analytics
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Estimate Distribution</h5>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ (estimate_stats.photo_estimates / stats.total_estimates * 100) if stats.total_estimates > 0 else 0 }}%">
+                                Photo ({{ estimate_stats.photo_estimates }})
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar" 
+                                 style="width: {{ (estimate_stats.manual_estimates / stats.total_estimates * 100) if stats.total_estimates > 0 else 0 }}%">
+                                Manual ({{ estimate_stats.manual_estimates }})
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Quick Stats</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Users
+                                <span class="badge bg-primary rounded-pill">{{ stats.total_users }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Estimates
+                                <span class="badge bg-success rounded-pill">{{ stats.total_estimates }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Estimates Today
+                                <span class="badge bg-warning rounded-pill">{{ stats.estimates_today }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize Bootstrap tabs
+document.addEventListener('DOMContentLoaded', function() {
+    var triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs button'))
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl)
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+    })
+});
+</script>
+{% endblock %} 

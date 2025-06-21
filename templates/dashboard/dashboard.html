@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+    .dashboard-header h2 {
+        font-weight: 700;
+        color: #21807a;
+    }
+    .dashboard-header p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    .stat-card {
+        background: #fff;
+        border-radius: 1.2rem;
+        padding: 1.75rem;
+        box-shadow: 0 8px 32px rgba(33,128,122,0.1);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp .5s ease-out;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(33,128,122,0.15);
+    }
+    .stat-card .stat-icon {
+        font-size: 2.5rem;
+        padding: 1rem;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    .stat-card .stat-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #212529;
+    }
+    .icon-estimates {
+        background-color: #e3f7fc;
+        color: #0dcaf0;
+    }
+    .icon-avg-cost {
+        background-color: #fff0e3;
+        color: #fd7e14;
+    }
+    .history-card {
+        background: #fff;
+        border-radius: 1.2rem;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(33,128,122,0.1);
+        border: none;
+        margin-top: 2rem;
+        animation: fadeInUp .7s ease-out;
+    }
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .history-header h5 {
+        color: #21807a;
+        font-weight: 700;
+        margin: 0;
+    }
+    .history-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+    }
+    .history-table th {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .history-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+    .history-table tbody tr {
+        background-color: #f8f9fa;
+        border-radius: 0.8rem;
+        transition: all 0.2s ease;
+    }
+    .history-table tbody tr:hover {
+        background-color: #e9ecef;
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        z-index: 2;
+        position: relative;
+    }
+    .badge-manual, .badge-photo {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.4em 0.8em;
+        border-radius: 2rem;
+    }
+    .badge-manual {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+    .badge-photo {
+        background-color: #e0f8f6;
+        color: #17635e;
+    }
+    .car-details {
+        font-weight: 500;
+    }
+    .empty-history {
+        text-align: center;
+        padding: 3rem;
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+    }
+    .empty-history .bi {
+        font-size: 3rem;
+        color: #ced4da;
+    }
+    .empty-history p {
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #6c757d;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="dashboard-header">
+        <h2>Welcome, {{ current_user.email.split('@')[0] }}!</h2>
+        <p>Here's a summary of your activity on Sygma.AI.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row">
+        <div class="col-lg-6 col-md-6 mb-4">
+            <div class="stat-card">
+                <div class="stat-icon icon-estimates">
+                    <i class="bi bi-card-list"></i>
+                </div>
+                <div class="stat-title">Total Estimates</div>
+                <div class="stat-value">{{ stats.total_estimates }}</div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mb-4">
+            <div class="stat-card">
+                <div class="stat-icon icon-avg-cost">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="stat-title">Average Cost</div>
+                <div class="stat-value">{{ stats.average_cost }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Card -->
+    <div class="history-card">
+        <div class="history-header">
+            <h5><i class="bi bi-clock-history me-2"></i>Estimate History</h5>
+        </div>
+        
+        {% if estimates %}
+        <div class="table-responsive">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Car / Details</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for estimate in estimates %}
+                    <tr>
+                        <td>{{ estimate.timestamp.strftime('%b %d, %Y') }}<br><small class="text-muted">{{ estimate.timestamp.strftime('%H:%M') }}</small></td>
+                        <td>
+                            {% if estimate.estimate_type == 'manual' %}
+                                <span class="badge badge-manual"><i class="bi bi-keyboard me-1"></i>Manual</span>
+                            {% else %}
+                                <span class="badge badge-photo"><i class="bi bi-camera me-1"></i>Photo</span>
+                            {% endif %}
+                        </td>
+                        <td class="car-details">
+                            {% if estimate.car_brand and estimate.car_brand != 'Unknown' %}
+                                {{ estimate.car_brand }} {{ estimate.car_model }}
+                                <br><small class="text-muted">{{ estimate.damaged_part }}</small>
+                            {% else %}
+                                Photo Analysis
+                                <br><small class="text-muted">{{ estimate.damaged_part }}</small>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold">{{ estimate.predicted_cost }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="empty-history">
+                <i class="bi bi-file-earmark-text"></i>
+                <p>No estimates yet. Your recent estimates will appear here.</p>
+                <a href="{{ url_for('estimate.estimate') }}" class="btn" style="background-color: #21807a; color: white;">Create First Estimate</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %} 

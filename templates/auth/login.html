@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+        min-height: 100vh;
+    }
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    .login-card {
+        max-width: 420px;
+        width: 100%;
+        border-radius: 1.5rem;
+        box-shadow: 0 12px 40px rgba(33,128,122,0.15);
+        border: none;
+        background: #fff;
+        animation: slideInUp 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #21807a, #2ec4b6, #21807a);
+    }
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .login-logo {
+        text-align: center;
+        margin-bottom: 1rem;
+        animation: logoBounce 0.8s ease-out 0.2s both;
+    }
+    .login-logo img {
+        max-width: 100px;
+        max-height: 100px;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(33,128,122,0.2);
+        transition: transform 0.3s ease;
+    }
+    .login-logo img:hover {
+        transform: scale(1.05);
+    }
+    @keyframes logoBounce {
+        0% { opacity: 0; transform: scale(0.8); }
+        50% { transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    .login-tagline {
+        text-align: center;
+        color: #21807a;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.3px;
+        animation: fadeIn 0.8s ease-out 0.4s both;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+        animation: slideInLeft 0.6s ease-out 0.6s both;
+    }
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    .form-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #21807a;
+        font-size: 1.1rem;
+        z-index: 2;
+    }
+    .form-control {
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    .form-control:focus {
+        border-color: #21807a;
+        box-shadow: 0 0 0 0.2rem rgba(33,128,122,0.15);
+    }
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.15);
+    }
+    .form-control.is-valid {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.15);
+    }
+    .toggle-password {
+        cursor: pointer;
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 1.1rem;
+        z-index: 2;
+        transition: color 0.3s ease;
+    }
+    .toggle-password:hover {
+        color: #21807a;
+    }
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        animation: slideInRight 0.6s ease-out 0.8s both;
+    }
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    .form-actions a {
+        color: #21807a;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .form-actions a:hover {
+        color: #17635e;
+        text-decoration: underline;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #21807a 0%, #2ec4b6 100%);
+        border: none;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 0.875rem 2rem;
+        box-shadow: 0 4px 16px rgba(33,128,122,0.3);
+        transition: all 0.3s ease;
+        animation: slideInUp 0.6s ease-out 1s both;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background: linear-gradient(135deg, #17635e 0%, #21807a 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(33,128,122,0.4);
+    }
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    .alert {
+        border-radius: 0.8rem;
+        border: none;
+        font-weight: 500;
+        animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    .loading {
+        display: none;
+    }
+    .btn-primary.loading {
+        position: relative;
+        color: transparent;
+    }
+    .btn-primary.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="card login-card">
+        <div class="card-body p-4">
+            <div class="login-logo">
+                <img src="/static/sygma_logo.png" alt="Sygma.AI Logo">
+            </div>
+            <div class="login-tagline">Welcome back! Secure, smart, and simple car repair solutions.</div>
+            <h4 class="mb-4 text-center" style="font-weight:600; letter-spacing:0.5px; color: #21807a;">Login to Sygma.AI</h4>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" autocomplete="off" id="loginForm">
+                <div class="form-group">
+                    <i class="bi bi-envelope form-icon"></i>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email address" required>
+                </div>
+                <div class="form-group">
+                    <i class="bi bi-lock form-icon"></i>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                    <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
+                </div>
+                <div class="form-actions">
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                    <a href="{{ url_for('auth.register') }}" class="register-link">Create account</a>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                    <span class="btn-text">{{ _('Login') }}</span>
+                    <span class="loading">Logging in...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Password toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+    
+    if (togglePassword && password) {
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    }
+
+    // Form validation and loading state
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            // Basic validation
+            let isValid = true;
+            
+            // Email validation
+            if (!emailInput.value || !emailInput.value.includes('@')) {
+                emailInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                emailInput.classList.remove('is-invalid');
+                emailInput.classList.add('is-valid');
+            }
+            
+            // Password validation
+            if (!passwordInput.value) { // Just check if not empty
+                passwordInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                passwordInput.classList.remove('is-invalid');
+                passwordInput.classList.add('is-valid');
+            }
+            
+            if (isValid) {
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+                return true; // Allow form submission
+            } else {
+                e.preventDefault(); // Prevent submission if validation fails
+            }
+        });
+    }
+
+    // Real-time validation
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            if (this.value && this.value.includes('@')) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+            }
+        });
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            if (this.value && this.value.length >= 6) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+            }
+        });
+    }
+</script>
+{% endblock %} 

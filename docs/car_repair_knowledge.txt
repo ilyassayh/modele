@@ -1,0 +1,11 @@
+Question: Quelle est la différence entre une aile et une portière ?
+Réponse: L’aile est la partie de la carrosserie qui entoure la roue, tandis que la portière permet l’accès à l’intérieur du véhicule.
+
+Question: Que signifie "dommages mineurs" ?
+Réponse: Il s'agit généralement de rayures superficielles ou d’éraflures sur la peinture, sans déformation structurelle.
+
+Question: Combien coûte en moyenne un remplacement de pare-choc ?
+Réponse: En général, un pare-choc coûte entre 1500 et 3000 MAD selon le modèle du véhicule.
+
+Question: Combien de temps dure une réparation de phare cassé ?
+Réponse: Environ 1 à 2 heures selon la disponibilité des pièces.

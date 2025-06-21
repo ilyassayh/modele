@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" {% if get_locale() == 'ar' %}dir="rtl"{% endif %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ _('Sygma.AI Car Repair Estimator') }}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f7fc 0%, #f8f9fa 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding-top: 85px; /* Adjusted for fixed navbar */
+        }
+        .navbar {
+            background: rgba(255,255,255,0.85) !important;
+            box-shadow: 0 4px 24px #21807a18;
+            backdrop-filter: blur(8px);
+            min-height: 65px;
+            height: 65px;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.45rem;
+            color: #21807a !important;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            height: 45px; /* Adjusted for smaller navbar logo */
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-link {
+            color: #21807a !important;
+            font-weight: 500;
+            font-size: 1.08rem;
+            border-radius: 1.2rem;
+            margin: 0 0.2rem;
+            transition: background 0.18s, color 0.18s;
+            padding: 0.45rem 1.1rem;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            background: linear-gradient(90deg, #2ec4b6 60%, #21807a 100%);
+            color: #fff !important;
+        }
+        .back-to-home-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #2ec4b6, #21807a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 4px 15px rgba(33, 128, 122, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1030;
+            border: none;
+        }
+        .back-to-home-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 7px 20px rgba(33, 128, 122, 0.5);
+            color: white;
+        }
+    </style>
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+{% block nav %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('home') }}">
+      <img src="/static/sygma_logo.png" alt="Sygma.AI Logo" style="height: 135px; margin-right: 10px; vertical-align: middle;">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/estimate">{{ _('Manual Estimate') }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="/photo-analyze">{{ _('Photo Analysis') }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="/shops">{{ _('Repair Shops') }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="/chat">{{ _('Live Chat') }}</a></li>
+
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+          <li class="nav-item"><a class="nav-link" href="/admin">{{ _('Admin') }}</a></li>
+          {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">{{ _('Dashboard') }}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">{{ _('Login/Register') }}</a></li>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-translate"></i> {{ _('Language') }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('set_language', lang='en') }}">English</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('set_language', lang='fr') }}">Français</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('set_language', lang='ar') }}">العربية</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+<div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+{% if request.path != url_for('home') %}
+<a href="{{ url_for('home') }}" class="back-to-home-btn" title="Back to Home">
+    <i class="bi bi-house-door-fill"></i>
+</a>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

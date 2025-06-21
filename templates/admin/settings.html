@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Settings - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 1.5rem auto 2rem auto;
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(33,128,122,0.18);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(12px);
+        padding: 2.5rem 2.2rem 2rem 2.2rem;
+        animation: fadeIn 1.1s cubic-bezier(.39,.575,.56,1.000);
+    }
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e3f7fc;
+    }
+    .admin-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #21807a;
+        letter-spacing: 1px;
+    }
+    .btn-admin {
+        background: linear-gradient(135deg, #2ec4b6, #21807a);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-admin:hover {
+        background: linear-gradient(135deg, #21807a, #17635e);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 128, 122, 0.3);
+        color: white;
+    }
+    .btn-warning-admin {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    .btn-warning-admin:hover {
+        background: linear-gradient(135deg, #fd7e14, #e55a00);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+        color: white;
+    }
+    .settings-card {
+        background: rgba(255,255,255,0.95);
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px #21807a18;
+        border: 2px solid #e3f7fc;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+    }
+    .settings-card:hover {
+        box-shadow: 0 8px 32px #21807a33;
+        border-color: #2ec4b6;
+        transform: translateY(-2px);
+    }
+    .settings-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #21807a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    .settings-title i {
+        margin-right: 0.5rem;
+        color: #2ec4b6;
+    }
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #e3f7fc;
+    }
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #21807a;
+    }
+    .info-value {
+        color: #17635e;
+        font-weight: 500;
+    }
+    .backup-section {
+        background: linear-gradient(135deg, #e3f7fc, #f8f9fa);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .backup-info {
+        background: rgba(255,255,255,0.8);
+        border-radius: 0.8rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .danger-zone {
+        background: linear-gradient(135deg, #ffe6e6, #fff5f5);
+        border: 2px solid #ff6b6b;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    .danger-zone h4 {
+        color: #d63031;
+        margin-bottom: 1rem;
+    }
+    .btn-danger-admin {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    .btn-danger-admin:hover {
+        background: linear-gradient(135deg, #ee5a52, #d63031);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(238, 90, 82, 0.3);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-title">System Settings</div>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-admin">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- System Information -->
+    <div class="settings-card">
+        <div class="settings-title">
+            <i class="bi bi-info-circle"></i>
+            System Information
+        </div>
+        <div class="info-item">
+            <span class="info-label">Database Size</span>
+            <span class="info-value">{{ system_info.database_size }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Uploaded Files</span>
+            <span class="info-value">{{ system_info.total_files }} files</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">System Uptime</span>
+            <span class="info-value">{{ system_info.system_uptime }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Python Version</span>
+            <span class="info-value">{{ system_info.python_version }}</span>
+        </div>
+    </div>
+
+    <!-- Backup Management -->
+    <div class="backup-section">
+        <div class="settings-title">
+            <i class="bi bi-cloud-arrow-up"></i>
+            Database Backup
+        </div>
+        <div class="backup-info">
+            <p><strong>Current Database:</strong> site.db</p>
+            <p><strong>Last Backup:</strong> 
+                {% if system_info.database_size != "N/A" %}
+                    Available ({{ system_info.database_size }})
+                {% else %}
+                    No backup found
+                {% endif %}
+            </p>
+            <p class="text-muted">
+                <i class="bi bi-info-circle"></i>
+                Backups are stored in the 'backups' directory with timestamps.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin.admin_backup') }}" style="display: inline;">
+            <button type="submit" class="btn btn-warning-admin">
+                <i class="bi bi-download"></i> Create Backup
+            </button>
+        </form>
+    </div>
+
+    <!-- System Maintenance -->
+    <div class="settings-card">
+        <div class="settings-title">
+            <i class="bi bi-tools"></i>
+            System Maintenance
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <span class="info-label">Cache Status</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">Active</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Session Management</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">Running</span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <span class="info-label">Database Connections</span>
+                    <span class="info-value">
+                        <span class="badge bg-info">Healthy</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">File Permissions</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">OK</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Settings -->
+    <div class="settings-card">
+        <div class="settings-title">
+            <i class="bi bi-gear"></i>
+            Application Settings
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <span class="info-label">Debug Mode</span>
+                    <span class="info-value">
+                        <span class="badge bg-warning">Enabled</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Language Support</span>
+                    <span class="info-value">EN, FR</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <span class="info-label">AI Model Status</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">Active</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">ML Model Status</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">Loaded</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="settings-card">
+        <div class="settings-title">
+            <i class="bi bi-shield-check"></i>
+            Security Settings
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <span class="info-label">Admin Users</span>
+                    <span class="info-value">
+                        <span class="badge bg-primary">{{ users|selectattr('is_admin', 'equalto', true)|list|length }}</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Session Timeout</span>
+                    <span class="info-value">30 minutes</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <span class="info-label">Password Policy</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">Enforced</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">CSRF Protection</span>
+                    <span class="info-value">
+                        <span class="badge bg-success">Active</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="danger-zone">
+        <h4><i class="bi bi-exclamation-triangle"></i> Danger Zone</h4>
+        <p class="text-muted">These actions are irreversible and should be used with extreme caution.</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h6 class="card-title text-danger">Clear All Data</h6>
+                        <p class="card-text text-muted">This will delete all users, estimates, and uploaded files.</p>
+                        <button class="btn btn-danger-admin" disabled title="Coming soon">
+                            <i class="bi bi-trash"></i> Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <h6 class="card-title text-warning">Reset System</h6>
+                        <p class="card-text text-muted">This will reset the system to its initial state.</p>
+                        <button class="btn btn-warning-admin" disabled title="Coming soon">
+                            <i class="bi bi-arrow-clockwise"></i> Reset System
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="settings-card">
+        <div class="settings-title">
+            <i class="bi bi-lightning"></i>
+            Quick Actions
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.admin_users') }}" class="btn btn-admin w-100 mb-2">
+                    <i class="bi bi-people"></i> Manage Users
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.admin_estimates') }}" class="btn btn-admin w-100 mb-2">
+                    <i class="bi bi-calculator"></i> View Estimates
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-admin w-100 mb-2">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-warning-admin w-100 mb-2" onclick="refreshSystem()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshSystem() {
+    location.reload();
+}
+
+// Add some interactive features
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to settings cards
+    const cards = document.querySelectorAll('.settings-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %} 

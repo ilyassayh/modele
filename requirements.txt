@@ -1,8 +1,15 @@
-streamlit==1.32.0
-joblib==1.3.2
-pandas==2.2.0
-google-generativeai==0.3.2
-Pillow==10.2.0
-plotly==5.18.0
-python-dotenv==1.0.1
-scikit-learn==1.6.1
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Flask-Babel
+python-dotenv
+pandas
+joblib
+Pillow
+google-generativeai
+scikit-learn
+plotly
+opencv-python
+numpy
+psutil
+# For modern look, Bootstrap will be included via CDN in HTML

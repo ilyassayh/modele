@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block title %}Photo Analysis History - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    .history-container {
+        max-width: 1200px;
+        margin: auto;
+    }
+    .history-header {
+        background: linear-gradient(135deg, #e3f7fc, #f8f9fa);
+        border-radius: 1.2rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.7s;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .history-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #21807a;
+        margin-bottom: 0.5rem;
+    }
+    .history-subtitle {
+        color: #17635e;
+        font-size: 1.1rem;
+    }
+    .history-card {
+        background: white;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px rgba(33, 128, 122, 0.1);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+        animation: fadeIn 0.7s;
+        position: relative;
+    }
+    .history-card:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 8px 32px rgba(33, 128, 122, 0.2);
+        z-index: 2;
+    }
+    .history-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        filter: grayscale(10%) contrast(1.1);
+        transition: filter 0.3s;
+    }
+    .history-card:hover .history-image {
+        filter: grayscale(0%) contrast(1.2) brightness(1.08);
+    }
+    .history-content {
+        padding: 1.5rem;
+    }
+    .history-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .history-date {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .history-cost {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #21807a;
+        transition: color 0.3s;
+    }
+    .history-card:hover .history-cost {
+        color: #ff6b6b;
+    }
+    .car-info-mini {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .car-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+    }
+    .car-info-item {
+        text-align: center;
+    }
+    .car-info-label {
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 0.2rem;
+    }
+    .car-info-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #21807a;
+    }
+    .damage-summary {
+        margin-bottom: 1rem;
+    }
+    .damage-count {
+        background: #e3f7fc;
+        color: #21807a;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .btn-view-details {
+        background: linear-gradient(135deg, #2ec4b6, #21807a);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(33, 128, 122, 0.08);
+    }
+    .btn-view-details:hover {
+        background: linear-gradient(135deg, #21807a, #17635e);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 12px rgba(33, 128, 122, 0.3);
+        color: white;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+        animation: fadeIn 1s;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+        animation: bounce 1.2s infinite alternate;
+    }
+    @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-12px); }
+    }
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(33, 128, 122, 0.1);
+        animation: fadeIn 0.7s;
+        position: relative;
+    }
+    .stat-icon {
+        font-size: 2rem;
+        color: #2ec4b6;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s;
+    }
+    .stat-card:hover .stat-icon {
+        color: #21807a;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #21807a;
+        margin-bottom: 0.2rem;
+        transition: color 0.3s;
+    }
+    .stat-card:hover .stat-value {
+        color: #ff6b6b;
+    }
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .toggle-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 1.2rem;
+        gap: 1rem;
+    }
+    .toggle-btn {
+        background: #f8f9fa;
+        border: 1px solid #2ec4b6;
+        color: #21807a;
+        border-radius: 2rem;
+        padding: 0.3rem 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+    .toggle-btn.active, .toggle-btn:hover {
+        background: linear-gradient(135deg, #2ec4b6, #21807a);
+        color: #fff;
+    }
+    .search-bar {
+        max-width: 320px;
+        margin-left: auto;
+        margin-bottom: 1.2rem;
+    }
+    .search-input {
+        border-radius: 2rem !important;
+        padding-left: 2.2rem;
+    }
+    .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #21807a;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 history-container">
+    <div class="history-header">
+        <h1 class="history-title">Photo Analysis History</h1>
+        <p class="history-subtitle">Review your previous AI-powered damage assessments</p>
+    </div>
+
+    <div class="toggle-row">
+        <form class="search-bar position-relative" method="get">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" class="form-control search-input" name="q" placeholder="Search by model, brand, or year..." value="{{ request.args.get('q', '') }}">
+        </form>
+        <button class="toggle-btn active" id="gridViewBtn"><i class="bi bi-grid-3x3-gap"></i> Grid</button>
+        <button class="toggle-btn" id="timelineViewBtn"><i class="bi bi-clock-history"></i> Timeline</button>
+    </div>
+
+    {% if estimates %}
+    <!-- Statistics Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-camera"></i></div>
+            <div class="stat-value" data-count="{{ estimates|length }}">0</div>
+            <div class="stat-label">{{ _('Total Analyses') }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-calendar"></i></div>
+            <div class="stat-value" data-count="{{ estimates|selectattr('timestamp', 'ge', today)|list|length }}">0</div>
+            <div class="stat-label">{{ _('This Month') }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+            <div class="stat-value" data-count="{{ estimates|sum(attribute='predicted_cost')|int }}">0</div>
+            <div class="stat-label">{{ _('Total Estimated Cost') }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+            <div class="stat-value" data-count="{{ (estimates|sum(attribute='predicted_cost') / estimates|length)|int if estimates|length > 0 else 0 }}">0</div>
+            <div class="stat-label">{{ _('Average Cost') }}</div>
+        </div>
+    </div>
+
+    <!-- Analysis History -->
+    <div class="row" id="gridView">
+        {% for estimate in estimates %}
+        <div class="col-md-6 col-lg-4">
+            <div class="history-card">
+                {% if estimate.photo_filename %}
+                <img src="/static/placeholder-car.jpg" alt="Car damage" class="history-image">
+                {% endif %}
+                <div class="history-content">
+                    <div class="history-meta">
+                        <div class="history-date">
+                            <i class="bi bi-calendar"></i>
+                            {{ estimate.timestamp.strftime('%b %d, %Y') }}
+                        </div>
+                        <div class="history-cost">
+                            {{ estimate.predicted_cost }}
+                        </div>
+                    </div>
+
+                    {% if estimate.photo_analysis_data %}
+                    {% set analysis_data = estimate.photo_analysis_data|from_json %}
+                    {% if analysis_data.car_info %}
+                    <div class="car-info-mini">
+                        <div class="car-info-grid">
+                            <div class="car-info-item">
+                                <div class="car-info-label">Brand</div>
+                                <div class="car-info-value">{{ analysis_data.car_info.brand }}</div>
+                            </div>
+                            <div class="car-info-item">
+                                <div class="car-info-label">Model</div>
+                                <div class="car-info-value">{{ analysis_data.car_info.model }}</div>
+                            </div>
+                            <div class="car-info-item">
+                                <div class="car-info-label">Year</div>
+                                <div class="car-info-value">{{ analysis_data.car_info.year }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis_data.detailed_costs %}
+                    <div class="damage-summary">
+                        <span class="damage-count">
+                            <i class="bi bi-tools"></i>
+                            {{ analysis_data.detailed_costs|length }} damaged parts
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <div class="text-center">
+                        <a href="{{ url_for('photo.photo_analyze') }}?history_id={{ estimate.id }}" class="btn-view-details">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="timelineView" style="display:none;">
+        <div class="timeline">
+            {% for estimate in estimates %}
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="history-card" style="box-shadow:none;">
+                        <div class="history-meta">
+                            <div class="history-date">
+                                <i class="bi bi-calendar"></i>
+                                {{ estimate.timestamp.strftime('%b %d, %Y') }}
+                            </div>
+                            <div class="history-cost">
+                                {{ estimate.predicted_cost }}
+                            </div>
+                        </div>
+                        <div class="car-info-mini">
+                            <div class="car-info-grid">
+                                <div class="car-info-item">
+                                    <div class="car-info-label">Brand</div>
+                                    <div class="car-info-value">{{ analysis_data.car_info.brand if analysis_data and analysis_data.car_info else '' }}</div>
+                                </div>
+                                <div class="car-info-item">
+                                    <div class="car-info-label">Model</div>
+                                    <div class="car-info-value">{{ analysis_data.car_info.model if analysis_data and analysis_data.car_info else '' }}</div>
+                                </div>
+                                <div class="car-info-item">
+                                    <div class="car-info-label">Year</div>
+                                    <div class="car-info-value">{{ analysis_data.car_info.year if analysis_data and analysis_data.car_info else '' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ url_for('photo.photo_analyze') }}?history_id={{ estimate.id }}" class="btn-view-details">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-image"></i>
+        <div>{{ _('No photo analyses found.') }}</div>
+        <div>{{ _('Start by uploading a photo for analysis!') }}</div>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('photo.photo_analyze') }}" class="btn btn-primary">
+            <i class="bi bi-camera"></i> New Photo Analysis
+        </a>
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-house"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+// Animated counters for stats
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.stat-value').forEach(function(el) {
+        const target = parseInt(el.getAttribute('data-count')) || 0;
+        let count = 0;
+        const step = Math.max(1, Math.ceil(target / 40));
+        function animate() {
+            count += step;
+            if (count > target) count = target;
+            el.textContent = count;
+            if (count < target) requestAnimationFrame(animate);
+        }
+        animate();
+    });
+    // Toggle grid/timeline view
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const timelineViewBtn = document.getElementById('timelineViewBtn');
+    const gridView = document.getElementById('gridView');
+    const timelineView = document.getElementById('timelineView');
+    gridViewBtn.addEventListener('click', function() {
+        gridView.style.display = '';
+        timelineView.style.display = 'none';
+        gridViewBtn.classList.add('active');
+        timelineViewBtn.classList.remove('active');
+    });
+    timelineViewBtn.addEventListener('click', function() {
+        gridView.style.display = 'none';
+        timelineView.style.display = '';
+        timelineViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+    });
+});
+</script>
+{% endblock %} 

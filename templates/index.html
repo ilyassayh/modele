@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sygma IA - Saisie Manuelle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .navbar-sygma {
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(33,128,122,0.10);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 260px;
+            padding-top: 0;
+            padding-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            height: 250px;
+            width: auto;
+            margin-right: 32px;
+            vertical-align: middle;
+            margin-top: 0;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand span {
+            display: none;
+        }
+        .nav-link {
+            color: #21807a !important;
+            font-weight: 500;
+            font-size: 1.08rem;
+        }
+        .nav-link.active, .nav-link:focus, .nav-link:hover {
+            color: #fff !important;
+            background: #21807a !important;
+            border-radius: 1em;
+        }
+        .section-title {
+            color: #21807a !important;
+            background: none !important;
+            margin-bottom: 1.2rem;
+        }
+        .result-label {
+            font-weight: 600;
+            color: #333;
+        }
+        .result-badge {
+            font-size: 1rem;
+            padding: 0.3em 0.8em;
+            border-radius: 1em;
+        }
+        .cost-highlight {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+        }
+        .form-help {
+            font-size: 0.95em;
+            color: #6c757d;
+        }
+        .card-header.bg-primary {
+            background: #21807a !important;
+            color: #fff !important;
+        }
+        .btn-primary {
+            background: #21807a !important;
+            border: none !important;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-sygma mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center justify-content-center" href="/">
+      <img src="/static/sygma_logo.png" alt="Sygma IA Logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="/">Saisie Manuelle</a></li>
+        <li class="nav-item"><a class="nav-link" href="/photo">Analyse Photo</a></li>
+        <li class="nav-item"><a class="nav-link" href="/chatbot">Chatbot IA</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container py-5">
+  <div class="card shadow-lg mb-4">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0"><i class="bi bi-journal-text"></i> Saisie Manuelle des Détails</h3>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="/">
+        <div class="section-title mb-4"><i class="bi bi-car-front"></i> Détails du véhicule</div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label for="brand" class="form-label">Marque</label>
+            <select class="form-select" id="brand" name="brand" required aria-label="Choisissez une marque">
+              <option selected disabled>Choisissez une marque</option>
+              {% for b in brands %}
+                <option value="{{ b }}">{{ b }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="model" class="form-label">Modèle</label>
+            <select class="form-select" id="model" name="model" required aria-label="Choisissez un modèle">
+              <option selected disabled>Choisissez un modèle</option>
+            </select>
+          </div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label for="year" class="form-label">Année</label>
+            <input type="number" class="form-control" id="year" name="year" placeholder="2020" min="2005" max="2024" required aria-label="Année de fabrication">
+            <div class="form-text">Année de fabrication (2005-2024).</div>
+          </div>
+          <div class="col-md-6">
+            <label for="damaged_part" class="form-label">Partie Endommagée</label>
+            <select class="form-select" id="damaged_part" name="damaged_part" required aria-label="Choisissez une partie">
+              <option selected disabled>Choisissez une partie</option>
+              {% for part in car_parts %}
+                <option value="{{ part }}">{{ part }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Indiquez la partie de la voiture endommagée.</div>
+          </div>
+        </div>
+        <div class="section-title mb-4 mt-4"><i class="bi bi-exclamation-triangle"></i> Gravité du dommage</div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label for="severity" class="form-label">Sévérité</label>
+            <select class="form-select" id="severity" name="severity" required aria-label="Sévérité du dommage">
+              <option value="1">Mineur (Rayures)</option>
+              <option value="2">Modéré (Bosses)</option>
+              <option value="3">Grave (Fissures, Cassures)</option>
+            </select>
+            <div class="form-text">Choisissez le niveau de gravité du dommage.</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-6 mx-auto">
+            <button type="submit" class="btn btn-primary w-100 mt-4">Calculer le Coût</button>
+          </div>
+        </div>
+      </form>
+      {% if result %}
+      <div id="result" class="mt-5">
+        <div class="card border-primary shadow">
+          <div class="card-header bg-light">
+            <span class="section-title"><i class="bi bi-cash-coin"></i> Estimation des Coûts</span>
+          </div>
+          <div class="card-body">
+            <div class="cost-highlight mb-3">
+              <span>💰</span>
+              <span>{{ result.predicted_cost }}</span>
+            </div>
+            <div class="row text-center mb-3">
+              <div class="col">
+                <div class="result-label">Pièces</div>
+                <div>{{ result.parts_cost }}</div>
+              </div>
+              <div class="col">
+                <div class="result-label">Main d'œuvre</div>
+                <div>{{ result.labor_cost }}</div>
+              </div>
+              <div class="col">
+                <div class="result-label">Peinture</div>
+                <div>{{ result.painting_cost }}</div>
+              </div>
+            </div>
+            <div class="alert alert-info mt-3">
+              <strong>⏱ Calendrier de Réparation :</strong><br>
+               Évaluation Initiale: 1-2h &nbsp; | &nbsp; Commande des Pièces: 1-2j &nbsp; | &nbsp; Travaux: {{ result.labor_hours }}h &nbsp; | &nbsp; Inspection Finale: 1-2h
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Data from backend
+var models = {{ models|tojson|safe }};
+document.addEventListener('DOMContentLoaded', function() {
+    var brandSelect = document.getElementById('brand');
+    var modelSelect = document.getElementById('model');
+    brandSelect.addEventListener('change', function() {
+        var selectedBrand = this.value;
+        // Clear previous options
+        modelSelect.innerHTML = '<option value="" disabled selected>Choisissez un modèle</option>';
+        if (models[selectedBrand]) {
+            models[selectedBrand].forEach(function(m) {
+                var opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                modelSelect.appendChild(opt);
+            });
+        }
+    });
+});
+</script>
+</body>
+</html> 

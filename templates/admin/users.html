@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Sygma.AI{% endblock %}
+
+{% block head_extra %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 1.5rem auto 2rem auto;
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(33,128,122,0.18);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(12px);
+        padding: 2.5rem 2.2rem 2rem 2.2rem;
+        animation: fadeIn 1.1s cubic-bezier(.39,.575,.56,1.000);
+    }
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e3f7fc;
+    }
+    .admin-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #21807a;
+        letter-spacing: 1px;
+    }
+    .btn-admin {
+        background: linear-gradient(135deg, #2ec4b6, #21807a);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-admin:hover {
+        background: linear-gradient(135deg, #21807a, #17635e);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 128, 122, 0.3);
+        color: white;
+    }
+    .btn-danger-admin {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    .btn-danger-admin:hover {
+        background: linear-gradient(135deg, #ee5a52, #d63031);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(238, 90, 82, 0.3);
+        color: white;
+    }
+    .table-admin {
+        background: rgba(255,255,255,0.97);
+        border-radius: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 24px #21807a18;
+    }
+    .table-admin thead {
+        background: #e3f7fc;
+        color: #21807a;
+    }
+    .table-admin th {
+        border: none;
+        font-weight: 700;
+        padding: 1rem;
+    }
+    .table-admin td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    .table-admin tbody tr:hover {
+        background: rgba(227, 247, 252, 0.3);
+    }
+    .stats-row {
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: rgba(255,255,255,0.95);
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px #21807a18;
+        border: 2px solid #2ec4b6;
+        padding: 1.5rem;
+        text-align: center;
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+        height: 100%;
+    }
+    .stat-card:hover {
+        box-shadow: 0 8px 32px #21807a33;
+        border-color: #21807a;
+        transform: translateY(-4px) scale(1.03);
+    }
+    .stat-icon {
+        font-size: 2rem;
+        color: #2ec4b6;
+        margin-bottom: 0.5rem;
+    }
+    .stat-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #21807a;
+        margin-bottom: 0.2rem;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #17635e;
+    }
+    .search-box {
+        background: rgba(255,255,255,0.95);
+        border: 2px solid #e3f7fc;
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-control-admin {
+        border: 2px solid #e3f7fc;
+        border-radius: 0.8rem;
+        padding: 0.8rem 1rem;
+        background: rgba(255,255,255,0.9);
+        transition: all 0.3s ease;
+    }
+    .form-control-admin:focus {
+        border-color: #2ec4b6;
+        box-shadow: 0 0 0 0.2rem rgba(46, 196, 182, 0.25);
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-title">User Management</div>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-admin">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row g-4 stats-row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div class="stat-title">Total Users</div>
+                <div class="stat-value">{{ users|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-shield-check"></i></div>
+                <div class="stat-title">Admins</div>
+                <div class="stat-value">{{ users|selectattr('is_admin', 'equalto', true)|list|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-person"></i></div>
+                <div class="stat-title">Regular Users</div>
+                <div class="stat-value">{{ users|selectattr('is_admin', 'equalto', false)|list|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-calculator"></i></div>
+                <div class="stat-title">Total Estimates</div>
+                <div class="stat-value">{{ users|sum(attribute='estimates|length') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="search-box">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" id="userSearch" class="form-control form-control-admin" placeholder="Search users by email...">
+            </div>
+            <div class="col-md-3">
+                <select id="roleFilter" class="form-control form-control-admin">
+                    <option value="">All Roles</option>
+                    <option value="admin">Admins Only</option>
+                    <option value="user">Users Only</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button id="clearFilters" class="btn btn-admin w-100">
+                    <i class="bi bi-x-circle"></i> Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-admin" id="usersTable">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Estimates</th>
+                    <th scope="col">Joined</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr data-email="{{ user.email }}" data-role="{{ 'admin' if user.is_admin else 'user' }}">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.is_admin %}
+                        <span class="badge bg-primary">Admin</span>
+                        {% else %}
+                        <span class="badge bg-secondary">User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ user.estimates|length }}</span>
+                    </td>
+                    <td>
+                        <small class="text-muted">ID: {{ user.id }}</small>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <form method="POST" action="{{ url_for('admin.toggle_admin_status', user_id=user.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-admin" 
+                                        {% if user.id == current_user.id %}disabled{% endif %}
+                                        title="{% if user.is_admin %}Remove admin{% else %}Make admin{% endif %}">
+                                    <i class="bi bi-{{ 'shield-x' if user.is_admin else 'shield-check' }}"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger-admin" 
+                                        {% if user.id == current_user.id %}disabled{% endif %}
+                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')"
+                                        title="Delete user">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- No Results Message -->
+    <div id="noResults" class="alert alert-info text-center" style="display: none;">
+        <i class="bi bi-search"></i> No users found matching your search criteria.
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userSearch = document.getElementById('userSearch');
+    const roleFilter = document.getElementById('roleFilter');
+    const clearFilters = document.getElementById('clearFilters');
+    const usersTable = document.getElementById('usersTable');
+    const noResults = document.getElementById('noResults');
+    const tbody = usersTable.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+
+    function filterUsers() {
+        const searchTerm = userSearch.value.toLowerCase();
+        const roleFilterValue = roleFilter.value;
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const email = row.getAttribute('data-email').toLowerCase();
+            const role = row.getAttribute('data-role');
+            
+            const matchesSearch = email.includes(searchTerm);
+            const matchesRole = !roleFilterValue || role === roleFilterValue;
+            
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0) {
+            noResults.style.display = 'block';
+            tbody.style.display = 'none';
+        } else {
+            noResults.style.display = 'none';
+            tbody.style.display = '';
+        }
+    }
+
+    userSearch.addEventListener('input', filterUsers);
+    roleFilter.addEventListener('change', filterUsers);
+    
+    clearFilters.addEventListener('click', function() {
+        userSearch.value = '';
+        roleFilter.value = '';
+        filterUsers();
+    });
+});
+</script>
+{% endblock %} 
