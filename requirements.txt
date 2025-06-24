@@ -12,4 +12,5 @@ plotly
 opencv-python
 numpy
 psutil
+gunicorn
 # For modern look, Bootstrap will be included via CDN in HTML
